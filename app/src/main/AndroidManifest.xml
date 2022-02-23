@@ -10,8 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Traveloid">
         <activity
-            android:name=".LoginActivity"
+            android:name=".SignUpActivity"
             android:exported="false" />
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
 
         <meta-data
             android:name="com.google.android.gms.version"

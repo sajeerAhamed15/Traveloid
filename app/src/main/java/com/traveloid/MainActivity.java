@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     }
 
     public void exploreClicked(View view) {
-        Intent intent = new Intent(MainActivity.this, ExploreActivity.class);
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(intent);
     }
 
