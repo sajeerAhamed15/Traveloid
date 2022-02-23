@@ -67,9 +67,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="18dp" />
 
+                    <ProgressBar
+                        android:id="@+id/loading"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
                     <com.yarolegovich.discretescrollview.DiscreteScrollView
                         android:id="@+id/item_picker"
-                        tools:listitem="@layout/item_explain_carousel_card"
+                        tools:listitem="@layout/item_carousel_card"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -209,7 +214,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cardView3"
                 android:layout_width="wrap_content"
-                android:layout_height="40dp" />
+                android:layout_height="20dp" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 

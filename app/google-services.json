@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "727210762097",
+    "project_id": "traveloid-app",
+    "storage_bucket": "traveloid-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:727210762097:android:98728925006c6ef303e0d0",
+        "android_client_info": {
+          "package_name": "com.traveloid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "727210762097-rmg2jugcktodaclfcfiiukic8dcnaea2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAokSNeEvSB0I-t4j438hJHYjtQoAuro9U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "727210762097-rmg2jugcktodaclfcfiiukic8dcnaea2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

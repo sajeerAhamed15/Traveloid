@@ -10,8 +10,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Traveloid">
         <activity
-            android:name=".BlogActivity"
+            android:name=".LoginActivity"
             android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyCOLlPpz2QiSwBF0zN0hR7cQqbVsvEp9pk" />
+
+        <activity
+            android:name=".BlogActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
         <activity
             android:name=".ExploreActivity"
             android:exported="false"

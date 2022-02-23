@@ -6,8 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginVertical="12dp"
     android:layout_marginHorizontal="16dp"
-    android:clickable="true"
-    android:elevation="2dp"
+    android:layout_margin="16dp"
+    android:elevation="8dp"
     app:cardCornerRadius="8dp">
 
     <LinearLayout
@@ -30,20 +30,18 @@
                     android:id="@+id/image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:foreground="?selectableItemBackground"
                     android:scaleType="centerCrop"
                     tools:ignore="ContentDescription" />
 
 
                 <ImageView
                     android:id="@+id/home"
-                    style="@style/ClickableImageView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:padding="4dp"
                     android:src="@drawable/ic_baseline_favorite_24"
-                    app:tint="@color/white" />
+                    app:tint="@android:color/white" />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
 

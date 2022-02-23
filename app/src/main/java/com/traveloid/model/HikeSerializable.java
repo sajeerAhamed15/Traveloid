@@ -1,26 +1,22 @@
 package com.traveloid.model;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.firestore.GeoPoint;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
-public class Hike {
+public class HikeSerializable implements Serializable {
 
     private String id;
     private String title;
     private String distance;
     private String image;
-    private List<GeoPoint> path;
+    private List<LatLangSerializable> path;
     private Boolean popular;
     private Boolean featured;
 
-    public Hike() {
+    public HikeSerializable() {
     }
 
-    public Hike(String id, String title, String distance, String image, List<GeoPoint> path, Boolean popular, Boolean featured) {
+    public HikeSerializable(String id, String title, String distance, String image, List<LatLangSerializable> path, Boolean popular, Boolean featured) {
         this.id = id;
         this.title = title;
         this.distance = distance;
@@ -46,7 +42,7 @@ public class Hike {
         return image;
     }
 
-    public List<GeoPoint> getPath() {
+    public List<LatLangSerializable> getPath() {
         return path;
     }
 
@@ -74,7 +70,7 @@ public class Hike {
         this.image = image;
     }
 
-    public void setPath(List<GeoPoint> path) {
+    public void setPath(List<LatLangSerializable> path) {
         this.path = path;
     }
 

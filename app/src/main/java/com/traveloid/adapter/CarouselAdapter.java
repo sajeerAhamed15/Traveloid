@@ -1,5 +1,6 @@
 package com.traveloid.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.traveloid.BlogActivity;
 import com.traveloid.R;
 import com.traveloid.model.Hike;
+import com.traveloid.utils.MapperUtils;
 
 import java.util.List;
 
@@ -26,12 +29,21 @@ public class CarouselAdapter extends RecyclerView.Adapter<CarouselAdapter.ViewHo
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.item_explain_carousel_card, parent, false);
+        View v = inflater.inflate(R.layout.item_carousel_card, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        final int index = position;
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(holder.itemView.getContext(), BlogActivity.class);
+                intent.putExtra("hike", MapperUtils.convertToSerializable(data.get(index)));
+                holder.itemView.getContext().startActivity(intent);
+            }
+        });
         Glide.with(holder.itemView.getContext())
                 .load(data.get(position).getImage())
                 .into(holder.image);
