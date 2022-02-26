@@ -26,6 +26,7 @@ import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.Hike;
 import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.MapperUtils;
+import com.traveloid.utils.SharedPrefUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -53,7 +54,13 @@ public class ExploreActivity extends AppCompatActivity {
         progressBar1.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.VISIBLE);
 
-        getData();
+
+        // Check login
+        if (SharedPrefUtils.getUserFromSP(this) == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        } else {
+            getData();
+        }
     }
 
     private void initUI() {

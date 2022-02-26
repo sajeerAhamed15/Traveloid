@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.Hike;
 import com.traveloid.adapter.CarouselAdapter;
+import com.traveloid.utils.SharedPrefUtils;
 import com.yarolegovich.discretescrollview.DSVOrientation;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
 import com.yarolegovich.discretescrollview.InfiniteScrollAdapter;
@@ -51,12 +53,17 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         currentItemName = findViewById(R.id.item_name);
         currentItemDistance = findViewById(R.id.item_distance);
 
+        // Check login
+        if (SharedPrefUtils.getUserFromSP(this) == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+        } else {
+            // get all hikes from Firebase
+            getData();
+        }
+
         // Show progress bar
         progressBar = findViewById(R.id.loading);
         progressBar.setVisibility(View.VISIBLE);
-
-        // get all hikes from Firebase
-        getData();
 
         // To hide the navigation bar and status bar
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
