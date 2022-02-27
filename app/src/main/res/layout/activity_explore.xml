@@ -13,20 +13,37 @@
         android:layout_height="wrap_content"
         app:liftOnScroll="true">
 
-        <EditText
+        <LinearLayout
             app:layout_scrollFlags="scroll|enterAlways|snap"
-            android:layout_margin="16dp"
-            android:id="@+id/search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/edittext_bg"
-            android:drawableLeft="@drawable/ic_search"
-            android:drawablePadding="14dp"
-            android:hint="Explore more"
-            android:paddingLeft="24dp"
-            android:paddingTop="12dp"
-            android:paddingRight="12dp"
-            android:paddingBottom="12dp" />
+            android:orientation="horizontal">
+            <ImageView
+                android:onClick="onBackPressed"
+                android:layout_marginLeft="12dp"
+                android:id="@+id/home"
+                app:tint="@color/shopSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentRight="true"
+                android:padding="4dp"
+                android:src="@drawable/ic_baseline_arrow_back_24" />
+            <EditText
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginVertical="16dp"
+                android:id="@+id/search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_bg_small"
+                android:drawableLeft="@drawable/ic_search"
+                android:drawablePadding="14dp"
+                android:hint="Explore more"
+                android:paddingLeft="24dp"
+                android:paddingTop="12dp"
+                android:paddingRight="12dp"
+                android:paddingBottom="12dp" />
+        </LinearLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -47,7 +64,7 @@
                 android:padding="16dp">
 
                 <TextView
-                    android:id="@+id/popularHikes"
+                    android:id="@+id/favouriteHikesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingBottom="12dp"
@@ -78,6 +95,7 @@
                     android:layout_height="wrap_content"/>
 
                 <TextView
+                    android:id="@+id/popHikesText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingVertical="12dp"

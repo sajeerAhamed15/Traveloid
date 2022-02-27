@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.google.gson.Gson;
+import com.traveloid.model.Hike;
 import com.traveloid.model.User;
 
+import java.util.List;
+
 public class SharedPrefUtils {
-    public static void saveInSP(User user, Context context) {
+    public static void saveUserInSP(User user, Context context) {
         SharedPreferences pref = context.getSharedPreferences("TraveloidPrefs", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
 

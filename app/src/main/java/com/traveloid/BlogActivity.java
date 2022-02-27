@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.GeoPoint;
 import com.traveloid.model.Hike;
 import com.traveloid.model.HikeSerializable;
+import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.MapperUtils;
 
 import java.net.URL;
@@ -49,7 +51,7 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
         TextView distance = findViewById(R.id.distance);
         ImageView img = findViewById(R.id.image);
 
-        HikeSerializable hike = (HikeSerializable) getIntent().getSerializableExtra("Hike");
+        HikeSerializable hike = (HikeSerializable) getIntent().getSerializableExtra("hike");
         if (hike == null) {
             Intent intent = new Intent(BlogActivity.this, ExploreActivity.class);
             startActivity(intent);
@@ -57,6 +59,8 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
             path = MapperUtils.convertToLatLang(hike.getPath());
             title.setText(hike.getTitle());
             distance.setText(hike.getDistance());
+            // set image
+            new ImageLoadTask(hike.getImage(), img).execute();
 
             // set image
             try {
@@ -117,5 +121,9 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         polyline.setPattern(PATTERN_POLYLINE_DOTTED);
         polyline.setJointType(JointType.ROUND);
+    }
+
+    public void onBackPressed(View view) {
+        onBackPressed();
     }
 }

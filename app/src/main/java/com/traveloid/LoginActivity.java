@@ -2,9 +2,14 @@ package com.traveloid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +28,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.User;
 import com.traveloid.utils.SharedPrefUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -45,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.loading);
 
         progressBar.setVisibility(View.INVISIBLE);
+
+        checkAndRequestPermissions(LoginActivity.this);
     }
 
     public void loginClicked(View view) {
@@ -81,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            SharedPrefUtils.saveInSP(final_user, LoginActivity.this);
+                            SharedPrefUtils.saveUserInSP(final_user, LoginActivity.this);
                             startActivity(new Intent(LoginActivity.this, MainActivity.class));
                             progressBar.setVisibility(View.INVISIBLE);
                         }
@@ -121,5 +131,50 @@ public class LoginActivity extends AppCompatActivity {
         if (SharedPrefUtils.getUserFromSP(this) != null) {
             startActivity(new Intent(this, MainActivity.class));
         }
+    }
+
+    // Check permissions
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_ID_MULTIPLE_PERMISSIONS:
+                if (ContextCompat.checkSelfPermission(LoginActivity.this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
+                            .show();
+                } else if (ContextCompat.checkSelfPermission(LoginActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Your Storage.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    public static boolean checkAndRequestPermissions(final Activity context) {
+        int WExtstorePermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int cameraPermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.CAMERA);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+        if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded
+                    .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context, listPermissionsNeeded
+                            .toArray(new String[listPermissionsNeeded.size()]),
+                    REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
     }
 }

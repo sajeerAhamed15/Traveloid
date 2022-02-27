@@ -1,11 +1,23 @@
 package com.traveloid;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,14 +32,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.traveloid.api.FirebaseApi;
-import com.traveloid.model.Hike;
 import com.traveloid.model.User;
 import com.traveloid.utils.SharedPrefUtils;
+import com.traveloid.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +52,8 @@ public class SignUpActivity extends AppCompatActivity {
     ImageView profilePic;
 
     private FirebaseAuth mAuth;
+
+    private Uri filePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +72,7 @@ public class SignUpActivity extends AppCompatActivity {
         progressBar.setVisibility(View.INVISIBLE);
     }
 
-    public void createAccount(View view) {
+    public void createAccountClicked(View view) {
         progressBar.setVisibility(View.VISIBLE);
         String _email = email.getText().toString();
         String _password = password.getText().toString();
@@ -83,13 +96,39 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void saveAndLogin(FirebaseUser user) {
+        if (filePath != null) {
+            StorageReference ref = FirebaseApi.saveProfilePicture();
+            ref.putFile(filePath).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    // Image uploaded successfully
+                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            String profileUrl = uri.toString();
+                            saveUser(user, profileUrl);
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // Error, Image not uploaded
+                    Toast.makeText(SignUpActivity.this, "Failed to upload profile picture", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            saveUser(user, "");
+        }
+    }
+
+    private void saveUser(FirebaseUser user, String profileUrl) {
         String _name = name.getText().toString();
-        String _profileUrl = "";
 
         User newUser = new User();
         newUser.setEmail(user.getEmail());
         newUser.setName(_name);
-        newUser.setImage(_profileUrl);
+        newUser.setImage(profileUrl);
 
         FirebaseApi.saveUser(newUser)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -99,7 +138,7 @@ public class SignUpActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                SharedPrefUtils.saveInSP(newUser, SignUpActivity.this);
+                                SharedPrefUtils.saveUserInSP(newUser, SignUpActivity.this);
                                 startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                                 progressBar.setVisibility(View.INVISIBLE);
                             }
@@ -123,5 +162,108 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void loginClicked(View view) {
         startActivity(new Intent(this, LoginActivity.class));
+    }
+
+    public void onProfilePicClicked(View view) {
+        if (checkAndRequestPermissions(SignUpActivity.this)) {
+            final CharSequence[] optionsMenu = {"Take Photo", "Choose from Gallery", "Cancel"}; // create a menuOption Array
+            // create a dialog for showing the optionsMenu
+            AlertDialog.Builder builder = new AlertDialog.Builder(SignUpActivity.this);
+            builder.setItems(optionsMenu, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    if (optionsMenu[i].equals(optionsMenu[0])) {
+                        Intent takePicture = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(takePicture, 0);
+                    } else if (optionsMenu[i].equals(optionsMenu[1])) {
+                        Intent pickPhoto = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        startActivityForResult(pickPhoto, 1);
+                    } else if (optionsMenu[i].equals(optionsMenu[2])) {
+                        dialogInterface.dismiss();
+                    }
+                }
+            });
+            builder.show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != RESULT_CANCELED) {
+            switch (requestCode) {
+                case 0:
+                    if (resultCode == RESULT_OK && data != null) {
+                        Bitmap selectedImage = (Bitmap) data.getExtras().get("data");
+                        profilePic.setImageBitmap(selectedImage);
+                        filePath = Utils.getImageUri(getApplicationContext(), selectedImage, "traveloid-dp");
+                    }
+                    break;
+                case 1:
+                    if (resultCode == RESULT_OK && data != null) {
+                        filePath = data.getData();
+                        Uri selectedImage = data.getData();
+                        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                        if (selectedImage != null) {
+                            Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                            if (cursor != null) {
+                                cursor.moveToFirst();
+
+                                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                                String picturePath = cursor.getString(columnIndex);
+                                profilePic.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                                cursor.close();
+                            }
+                        }
+
+                    }
+                    break;
+            }
+        }
+    }
+
+    // Check permissions
+    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 101;
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_ID_MULTIPLE_PERMISSIONS:
+                if (ContextCompat.checkSelfPermission(SignUpActivity.this,
+                        Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Camara.", Toast.LENGTH_SHORT)
+                            .show();
+                } else if (ContextCompat.checkSelfPermission(SignUpActivity.this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(),
+                            "FlagUp Requires Access to Your Storage.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    public static boolean checkAndRequestPermissions(final Activity context) {
+        int WExtstorePermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int cameraPermission = ContextCompat.checkSelfPermission(context,
+                Manifest.permission.CAMERA);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (cameraPermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(Manifest.permission.CAMERA);
+        }
+        if (WExtstorePermission != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded
+                    .add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(context, listPermissionsNeeded
+                            .toArray(new String[listPermissionsNeeded.size()]),
+                    REQUEST_ID_MULTIPLE_PERMISSIONS);
+            return false;
+        }
+        return true;
     }
 }

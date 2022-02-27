@@ -13,6 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,6 +26,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.Hike;
 import com.traveloid.adapter.CarouselAdapter;
+import com.traveloid.model.User;
+import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.SharedPrefUtils;
 import com.yarolegovich.discretescrollview.DSVOrientation;
 import com.yarolegovich.discretescrollview.DiscreteScrollView;
@@ -41,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
     private TextView currentItemName;
     private TextView currentItemDistance;
+    private ImageView profilePic;
     private DiscreteScrollView itemPicker;
     private InfiniteScrollAdapter<?> infiniteAdapter;
     private ProgressBar progressBar;
@@ -52,11 +56,16 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
 
         currentItemName = findViewById(R.id.item_name);
         currentItemDistance = findViewById(R.id.item_distance);
+        profilePic = findViewById(R.id.profile_image);
 
         // Check login
-        if (SharedPrefUtils.getUserFromSP(this) == null) {
+        User user = SharedPrefUtils.getUserFromSP(this);
+        if (user == null) {
             startActivity(new Intent(this, LoginActivity.class));
         } else {
+            if (!"".equals(user.getImage())) {
+                new ImageLoadTask(user.getImage(), profilePic).execute();
+            }
             // get all hikes from Firebase
             getData();
         }
@@ -64,31 +73,27 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         // Show progress bar
         progressBar = findViewById(R.id.loading);
         progressBar.setVisibility(View.VISIBLE);
-
-        // To hide the navigation bar and status bar
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        hideSystemBars();
     }
 
-    private List<Hike> getDummyData() {
-        String link = "https://images.unsplash.com/photo-1586022045497-31fcf76fa6cc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGhpa2luZ3xlbnwwfHwwfHw%3D&w=1000&q=80";
-        return Arrays.asList(
-                new Hike("1", "The Hadrian's Wall Path", "5 miles", link, getDummyPath(), true, true),
-                new Hike("2", "South West Coast Path", "12 miles", link, getDummyPath(), true, true),
-                new Hike("3", "Steep Cliffs of The Quiraing", "8 miles", link, getDummyPath(), true, true),
-                new Hike("4", "The South Downs Way", "15 miles", link, getDummyPath(), true, true),
-                new Hike("5", "Scafell Pike", "8 miles", link, getDummyPath(), true, true));
-    }
-    private List<GeoPoint> getDummyPath() {
-        return Arrays.asList(
-                new GeoPoint(-32, 143.321),
-                new GeoPoint(-34.747, 145.592),
-                new GeoPoint(-34.364, 147.891),
-                new GeoPoint(-33.501, 150.217),
-                new GeoPoint(-32.306, 149.248),
-                new GeoPoint(-32.491, 147.309)
-        );
-    }
+//    private List<Hike> getDummyData() {
+//        String link = "https://images.unsplash.com/photo-1586022045497-31fcf76fa6cc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGhpa2luZ3xlbnwwfHwwfHw%3D&w=1000&q=80";
+//        return Arrays.asList(
+//                new Hike("1", "The Hadrian's Wall Path", "5 miles", link, getDummyPath(), true, true),
+//                new Hike("2", "South West Coast Path", "12 miles", link, getDummyPath(), true, true),
+//                new Hike("3", "Steep Cliffs of The Quiraing", "8 miles", link, getDummyPath(), true, true),
+//                new Hike("4", "The South Downs Way", "15 miles", link, getDummyPath(), true, true),
+//                new Hike("5", "Scafell Pike", "8 miles", link, getDummyPath(), true, true));
+//    }
+//    private List<GeoPoint> getDummyPath() {
+//        return Arrays.asList(
+//                new GeoPoint(-32, 143.321),
+//                new GeoPoint(-34.747, 145.592),
+//                new GeoPoint(-34.364, 147.891),
+//                new GeoPoint(-33.501, 150.217),
+//                new GeoPoint(-32.306, 149.248),
+//                new GeoPoint(-32.491, 147.309)
+//        );
+//    }
 
     private void initUI() {
         itemPicker = findViewById(R.id.item_picker);
@@ -118,9 +123,13 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
                 if (task.isSuccessful()) {
                     List<Hike> hikes = new ArrayList<>();
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        hikes.add(document.toObject(Hike.class));
+                        Hike hike = document.toObject(Hike.class);
+                        if (hike.getFeatured()) {
+                            hikes.add(hike);
+                        }
                     }
                     data = hikes;
+
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -146,21 +155,7 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
     }
 
     public void exploreClicked(View view) {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, ExploreActivity.class);
         startActivity(intent);
-    }
-
-    private void hideSystemBars() {
-        WindowInsetsControllerCompat windowInsetsController =
-                ViewCompat.getWindowInsetsController(getWindow().getDecorView());
-        if (windowInsetsController == null) {
-            return;
-        }
-        // Configure the behavior of the hidden system bars
-        windowInsetsController.setSystemBarsBehavior(
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        );
-        // Hide both the status bar and the navigation bar
-        windowInsetsController.hide(WindowInsetsCompat.Type.systemBars());
     }
 }

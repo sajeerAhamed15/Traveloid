@@ -2,46 +2,47 @@ package com.traveloid;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
+import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.Hike;
+import com.traveloid.model.User;
 import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.MapperUtils;
 import com.traveloid.utils.SharedPrefUtils;
 
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ExploreActivity extends AppCompatActivity {
 
-    private List<Hike> data;
+    private List<Hike> filteredData;
+    private List<Hike> allData;
     private List<Hike> favHikes;
     private List<Hike> popHikes;
     private List<Hike> hikes;
+    private User user;
 
     private ProgressBar progressBar1;
     private ProgressBar progressBar2;
+    private EditText editText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +52,37 @@ public class ExploreActivity extends AppCompatActivity {
         // Show progress bar
         progressBar1 = findViewById(R.id.loading1);
         progressBar2 = findViewById(R.id.loading2);
+        editText = findViewById(R.id.search);
         progressBar1.setVisibility(View.VISIBLE);
         progressBar2.setVisibility(View.VISIBLE);
 
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                filteredData = new ArrayList<>();
+                for (Hike hike : allData) {
+                    if (hike.getTitle().toLowerCase().startsWith(editable.toString())) {
+                        filteredData.add(hike);
+                    }
+                }
+                initUI();
+            }
+        });
+
 
         // Check login
-        if (SharedPrefUtils.getUserFromSP(this) == null) {
+        user = SharedPrefUtils.getUserFromSP(this);
+        if (user == null) {
             startActivity(new Intent(this, LoginActivity.class));
         } else {
             getData();
@@ -64,27 +90,58 @@ public class ExploreActivity extends AppCompatActivity {
     }
 
     private void initUI() {
-        favHikes = data;
-        popHikes = data;
-        hikes = data;
+        favHikes = new ArrayList<>();
+        popHikes = new ArrayList<>();
+        hikes = new ArrayList<>();
+
+        for (Hike hike : filteredData) {
+            if (hike.getPopular()) {
+                popHikes.add(hike);
+            } else if (userFav(hike)) {
+                favHikes.add(hike);
+            } else {
+                hikes.add(hike);
+            }
+        }
+
+        TextView favText = findViewById(R.id.favouriteHikesText);
+        if (favHikes.size() == 0) {
+            favText.setVisibility(View.GONE);
+        } else {
+            favText.setVisibility(View.VISIBLE);
+        }
+
+        TextView popText = findViewById(R.id.popHikesText);
+        if (popHikes.size() == 0) {
+            popText.setVisibility(View.GONE);
+        } else {
+            popText.setVisibility(View.VISIBLE);
+        }
 
         LinearLayout favLinearLayout = findViewById(R.id.fav_horizontal_linear);
+        favLinearLayout.removeAllViews();
         for (Hike favHike : favHikes) {
             favLinearLayout.addView(horizontalViewCard(favHike, favLinearLayout));
         }
 
         LinearLayout popLinearLayout = findViewById(R.id.pop_horizontal_linear);
+        popLinearLayout.removeAllViews();
         for (Hike popHike : popHikes) {
             popLinearLayout.addView(horizontalViewCard(popHike, popLinearLayout));
         }
 
         LinearLayout otherLinearLayout = findViewById(R.id.vertical_linear);
+        otherLinearLayout.removeAllViews();
         for (Hike hike : hikes) {
             otherLinearLayout.addView(verticalViewCard(hike, otherLinearLayout));
         }
 
         progressBar1.setVisibility(View.GONE);
         progressBar2.setVisibility(View.GONE);
+    }
+
+    private boolean userFav(Hike hike) {
+        return user.getFavorites().contains(hike.getTitle());
     }
 
     private void getData() {
@@ -96,7 +153,8 @@ public class ExploreActivity extends AppCompatActivity {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         hikes.add(document.toObject(Hike.class));
                     }
-                    data = hikes;
+                    allData = hikes;
+                    filteredData = hikes;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -121,6 +179,7 @@ public class ExploreActivity extends AppCompatActivity {
         TextView title = myLayout.findViewById(R.id.title);
         TextView distance = myLayout.findViewById(R.id.distance);
         ImageView img = myLayout.findViewById(R.id.image);
+        CardView root = myLayout.findViewById(R.id.rootLayout);
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
@@ -128,14 +187,17 @@ public class ExploreActivity extends AppCompatActivity {
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
 
-        myLayout.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener cardClick = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ExploreActivity.this, BlogActivity.class);
                 intent.putExtra("hike", MapperUtils.convertToSerializable(hike));
                 startActivity(intent);
             }
-        });
+        };
+
+        root.setOnClickListener(cardClick);
+        img.setOnClickListener(cardClick);
         return myLayout;
     }
 
@@ -145,6 +207,7 @@ public class ExploreActivity extends AppCompatActivity {
         TextView title = myLayout.findViewById(R.id.title);
         TextView distance = myLayout.findViewById(R.id.distance);
         ImageView img = myLayout.findViewById(R.id.image);
+        LinearLayout root = myLayout.findViewById(R.id.rootLayout);
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
@@ -152,34 +215,21 @@ public class ExploreActivity extends AppCompatActivity {
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
 
-        myLayout.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener cardClick = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ExploreActivity.this, BlogActivity.class);
                 intent.putExtra("hike", MapperUtils.convertToSerializable(hike));
                 startActivity(intent);
             }
-        });
+        };
+
+        root.setOnClickListener(cardClick);
+        img.setOnClickListener(cardClick);
         return myLayout;
     }
 
-    private List<Hike> getDummyData() {
-        String link = "https://images.unsplash.com/photo-1586022045497-31fcf76fa6cc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGhpa2luZ3xlbnwwfHwwfHw%3D&w=1000&q=80";
-        return Arrays.asList(
-                new Hike("1", "The Hadrian's Wall Path", "5 miles", link, getDummyPath(), true, true),
-                new Hike("2", "South West Coast Path", "12 miles", link, getDummyPath(), true, true),
-                new Hike("3", "Steep Cliffs of The Quiraing", "8 miles", link, getDummyPath(), true, true),
-                new Hike("4", "The South Downs Way", "15 miles", link, getDummyPath(), true, true),
-                new Hike("5", "Scafell Pike", "8 miles", link, getDummyPath(), true, true));
-    }
-    private List<GeoPoint> getDummyPath() {
-        return Arrays.asList(
-                new GeoPoint(-32, 143.321),
-                new GeoPoint(-34.747, 145.592),
-                new GeoPoint(-34.364, 147.891),
-                new GeoPoint(-33.501, 150.217),
-                new GeoPoint(-32.306, 149.248),
-                new GeoPoint(-32.491, 147.309)
-        );
+    public void onBackPressed(View view) {
+        onBackPressed();
     }
 }
