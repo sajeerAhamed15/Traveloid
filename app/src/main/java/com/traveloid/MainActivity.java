@@ -146,4 +146,9 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         Intent intent = new Intent(MainActivity.this, ExploreActivity.class);
         startActivity(intent);
     }
+
+    public void startHikeClicked(View view) {
+        Intent intent = new Intent(MainActivity.this, StartHikeActivity.class);
+        startActivity(intent);
+    }
 }

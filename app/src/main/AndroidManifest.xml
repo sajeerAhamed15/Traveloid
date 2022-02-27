@@ -13,6 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Traveloid">
         <activity
+            android:name=".StartHikeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />
+        <activity
             android:name=".EditProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen" />

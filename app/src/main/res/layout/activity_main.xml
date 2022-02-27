@@ -200,6 +200,7 @@
                         android:textSize="24dp" />
 
                     <Button
+                        android:onClick="startHikeClicked"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/textView3"
@@ -219,33 +220,3 @@
     </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-    <!--<Button-->
-    <!--android:id="@+id/btn_transition_time"-->
-    <!--style="?android:borderlessButtonStyle"-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_weight="1"-->
-    <!--android:text="Text"-->
-    <!--android:textAllCaps="true"-->
-    <!--android:textColor="@color/shopAccent" />-->
-
-    <!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-    <!--            android:id="@+id/item_btn_buy"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:src="@drawable/ic_shopping_black_24dp"-->
-    <!--            android:tint="@android:color/white"-->
-    <!--            app:rippleColor="@color/shopFabRipple"-->
-    <!--            app:useCompatPadding="true" />-->
-
-    <!--    <ImageView-->
-    <!--        android:id="@+id/home"-->
-    <!--        style="@style/ClickableImageView"-->
-    <!--        android:layout_width="wrap_content"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_gravity="start"-->
-    <!--        android:layout_margin="8dp"-->
-    <!--        android:padding="8dp"-->
-    <!--        android:contentDescription="Back"-->
-    <!--        android:src="@drawable/ic_arrow_back_black_24dp" />-->
