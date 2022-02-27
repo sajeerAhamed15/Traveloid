@@ -138,6 +138,7 @@ public class SignUpActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                newUser.setId(documentReference.getId());
                                 SharedPrefUtils.saveUserInSP(newUser, SignUpActivity.this);
                                 startActivity(new Intent(SignUpActivity.this, MainActivity.class));
                                 progressBar.setVisibility(View.INVISIBLE);

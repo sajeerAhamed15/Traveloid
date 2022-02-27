@@ -3,11 +3,15 @@ package com.traveloid;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -18,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -27,6 +32,7 @@ import com.traveloid.model.User;
 import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.MapperUtils;
 import com.traveloid.utils.SharedPrefUtils;
+import com.traveloid.utils.UserUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -180,9 +186,11 @@ public class ExploreActivity extends AppCompatActivity {
         TextView distance = myLayout.findViewById(R.id.distance);
         ImageView img = myLayout.findViewById(R.id.image);
         CardView root = myLayout.findViewById(R.id.rootLayout);
+        ImageView likeButton = myLayout.findViewById(R.id.likeButton);
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
+        setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
 
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
@@ -198,6 +206,47 @@ public class ExploreActivity extends AppCompatActivity {
 
         root.setOnClickListener(cardClick);
         img.setOnClickListener(cardClick);
+
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (user != null) {
+                    if (!user.getFavorites().contains(hike.getTitle())) {
+                        FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.i("Firebase Update", "User liked a post");
+                                User updatedUser = UserUtils.updateLikes(hike.getTitle(), user);
+                                user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Marked as Favorite", Toast.LENGTH_SHORT).show();
+                                        setLikeButtonColor(likeButton, true);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        FirebaseApi.saveUserDislike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.i("Firebase Update", "User unliked a post");
+                                User updatedUser = UserUtils.updateDislikes(hike.getTitle(), user);
+                                user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Removed from Favorites", Toast.LENGTH_SHORT).show();
+                                        setLikeButtonColor(likeButton, false);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        });
         return myLayout;
     }
 
@@ -208,9 +257,11 @@ public class ExploreActivity extends AppCompatActivity {
         TextView distance = myLayout.findViewById(R.id.distance);
         ImageView img = myLayout.findViewById(R.id.image);
         LinearLayout root = myLayout.findViewById(R.id.rootLayout);
+        ImageView likeButton = myLayout.findViewById(R.id.likeButton);
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
+        setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
 
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
@@ -226,7 +277,60 @@ public class ExploreActivity extends AppCompatActivity {
 
         root.setOnClickListener(cardClick);
         img.setOnClickListener(cardClick);
+
+        likeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (user != null) {
+                    if (!user.getFavorites().contains(hike.getTitle())) {
+                        FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.i("Firebase Update", "User liked a post");
+                                User updatedUser = UserUtils.updateLikes(hike.getTitle(), user);
+                                user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Marked as Favorite", Toast.LENGTH_SHORT).show();
+                                        setLikeButtonColor(likeButton, true);
+                                    }
+                                });
+                            }
+                        });
+                    } else {
+                        FirebaseApi.saveUserDislike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.i("Firebase Update", "User unliked a post");
+                                User updatedUser = UserUtils.updateDislikes(hike.getTitle(), user);
+                                user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getApplicationContext(), "Removed from Favorites", Toast.LENGTH_SHORT).show();
+                                        setLikeButtonColor(likeButton, false);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            }
+        });
         return myLayout;
+    }
+
+    private void setLikeButtonColor(ImageView likeButton, boolean contains) {
+        if (contains) {
+            ImageViewCompat.setImageTintList(likeButton,
+                    ColorStateList.valueOf(
+                            ContextCompat.getColor(getApplicationContext(), R.color.haloRed)));
+        } else {
+            ImageViewCompat.setImageTintList(likeButton,
+                    ColorStateList.valueOf(
+                            ContextCompat.getColor(getApplicationContext(), R.color.white)));
+        }
     }
 
     public void onBackPressed(View view) {

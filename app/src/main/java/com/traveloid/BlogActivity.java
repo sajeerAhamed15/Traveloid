@@ -1,6 +1,7 @@
 package com.traveloid;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,8 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.ImageViewCompat;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -27,11 +31,16 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.GeoPoint;
+import com.traveloid.api.FirebaseApi;
 import com.traveloid.model.Hike;
 import com.traveloid.model.HikeSerializable;
+import com.traveloid.model.User;
 import com.traveloid.utils.ImageLoadTask;
 import com.traveloid.utils.MapperUtils;
+import com.traveloid.utils.SharedPrefUtils;
+import com.traveloid.utils.UserUtils;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -41,15 +50,19 @@ import java.util.List;
 public class BlogActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnPolylineClickListener {
 
     List<LatLng> path;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_blog);
 
+        user = SharedPrefUtils.getUserFromSP(BlogActivity.this);
+
         TextView title = findViewById(R.id.title);
         TextView distance = findViewById(R.id.distance);
         ImageView img = findViewById(R.id.image);
+        ImageView likeButton = findViewById(R.id.likeButton);
 
         HikeSerializable hike = (HikeSerializable) getIntent().getSerializableExtra("hike");
         if (hike == null) {
@@ -59,6 +72,7 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
             path = MapperUtils.convertToLatLang(hike.getPath());
             title.setText(hike.getTitle());
             distance.setText(hike.getDistance());
+            setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
             // set image
             new ImageLoadTask(hike.getImage(), img).execute();
 
@@ -73,6 +87,59 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
                     (SupportMapFragment) getSupportFragmentManager()
                             .findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
+
+            likeButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (user != null) {
+                        if (!user.getFavorites().contains(hike.getTitle())) {
+                            FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.i("Firebase Update", "User liked a post");
+                                    User updatedUser = UserUtils.updateLikes(hike.getTitle(), user);
+                                    user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "Marked as Favorite", Toast.LENGTH_SHORT).show();
+                                            setLikeButtonColor(likeButton, true);
+                                        }
+                                    });
+                                }
+                            });
+                        } else {
+                            FirebaseApi.saveUserDislike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    Log.i("Firebase Update", "User unliked a post");
+                                    User updatedUser = UserUtils.updateDislikes(hike.getTitle(), user);
+                                    user = SharedPrefUtils.saveUserInSP(updatedUser, getApplicationContext());
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(), "Removed from Favorites", Toast.LENGTH_SHORT).show();
+                                            setLikeButtonColor(likeButton, false);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    private void setLikeButtonColor(ImageView likeButton, boolean contains) {
+        if (contains) {
+            ImageViewCompat.setImageTintList(likeButton,
+                    ColorStateList.valueOf(
+                            ContextCompat.getColor(getApplicationContext(), R.color.haloRed)));
+        } else {
+            ImageViewCompat.setImageTintList(likeButton,
+                    ColorStateList.valueOf(
+                            ContextCompat.getColor(getApplicationContext(), R.color.white)));
         }
     }
 

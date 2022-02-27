@@ -10,7 +10,7 @@ import com.traveloid.model.User;
 import java.util.List;
 
 public class SharedPrefUtils {
-    public static void saveUserInSP(User user, Context context) {
+    public static User saveUserInSP(User user, Context context) {
         SharedPreferences pref = context.getSharedPreferences("TraveloidPrefs", 0); // 0 - for private mode
         SharedPreferences.Editor editor = pref.edit();
 
@@ -19,6 +19,8 @@ public class SharedPrefUtils {
 
         editor.putString("user", json);
         editor.commit();
+
+        return user;
     }
 
     public static User getUserFromSP(Context context) {

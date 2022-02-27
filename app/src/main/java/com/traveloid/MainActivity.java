@@ -75,26 +75,6 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         progressBar.setVisibility(View.VISIBLE);
     }
 
-//    private List<Hike> getDummyData() {
-//        String link = "https://images.unsplash.com/photo-1586022045497-31fcf76fa6cc?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTN8fGhpa2luZ3xlbnwwfHwwfHw%3D&w=1000&q=80";
-//        return Arrays.asList(
-//                new Hike("1", "The Hadrian's Wall Path", "5 miles", link, getDummyPath(), true, true),
-//                new Hike("2", "South West Coast Path", "12 miles", link, getDummyPath(), true, true),
-//                new Hike("3", "Steep Cliffs of The Quiraing", "8 miles", link, getDummyPath(), true, true),
-//                new Hike("4", "The South Downs Way", "15 miles", link, getDummyPath(), true, true),
-//                new Hike("5", "Scafell Pike", "8 miles", link, getDummyPath(), true, true));
-//    }
-//    private List<GeoPoint> getDummyPath() {
-//        return Arrays.asList(
-//                new GeoPoint(-32, 143.321),
-//                new GeoPoint(-34.747, 145.592),
-//                new GeoPoint(-34.364, 147.891),
-//                new GeoPoint(-33.501, 150.217),
-//                new GeoPoint(-32.306, 149.248),
-//                new GeoPoint(-32.491, 147.309)
-//        );
-//    }
-
     private void initUI() {
         itemPicker = findViewById(R.id.item_picker);
         itemPicker.setOrientation(DSVOrientation.HORIZONTAL);

@@ -85,6 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                     User _user = null;
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         _user = document.toObject(User.class);
+                        _user.setId(document.getId());
                         break;
                     }
                     User final_user = _user;

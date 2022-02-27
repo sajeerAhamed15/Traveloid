@@ -30,7 +30,7 @@
 
 
             <ImageView
-                android:id="@+id/home"
+                android:id="@+id/likeButton"
                 style="@style/ClickableImageView"
                 app:tint="@color/white"
                 android:layout_width="wrap_content"

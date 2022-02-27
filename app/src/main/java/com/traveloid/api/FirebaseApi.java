@@ -1,7 +1,5 @@
 package com.traveloid.api;
 
-import android.net.Uri;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -10,7 +8,11 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.traveloid.model.Hike;
 import com.traveloid.model.User;
+import com.traveloid.utils.SharedPrefUtils;
+import com.traveloid.utils.UserUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FirebaseApi {
@@ -39,5 +41,17 @@ public class FirebaseApi {
         StorageReference storageRef = storage.getReference();
         StorageReference ref = storageRef.child("profile-pics/" + UUID.randomUUID().toString());
         return ref;
+    }
+
+    public static Task<Void> saveUserLike(String hikeTitle, User user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        User updatedUser = UserUtils.updateLikes(hikeTitle, user);
+        return db.collection("users").document(user.getId()).set(updatedUser);
+    }
+
+    public static Task<Void> saveUserDislike(String hikeTitle, User user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        User updatedUser = UserUtils.updateDislikes(hikeTitle, user);
+        return db.collection("users").document(user.getId()).set(updatedUser);
     }
 }
