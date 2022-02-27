@@ -68,6 +68,14 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
             }
             // get all hikes from Firebase
             getData();
+
+            // set listeners
+            profilePic.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    startActivity(new Intent(MainActivity.this, EditProfileActivity.class));
+                }
+            });
         }
 
         // Show progress bar

@@ -8,11 +8,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.traveloid.model.Hike;
 import com.traveloid.model.User;
-import com.traveloid.utils.SharedPrefUtils;
 import com.traveloid.utils.UserUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class FirebaseApi {
@@ -53,5 +50,10 @@ public class FirebaseApi {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         User updatedUser = UserUtils.updateDislikes(hikeTitle, user);
         return db.collection("users").document(user.getId()).set(updatedUser);
+    }
+
+    public static Task<Void> updateUser(User user) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        return db.collection("users").document(user.getId()).set(user);
     }
 }
