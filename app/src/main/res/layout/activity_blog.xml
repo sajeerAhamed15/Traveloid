@@ -38,7 +38,7 @@
         <include
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            layout="@layout/item_map_card" />
+            layout="@layout/layout_blog_card" />
     </FrameLayout>
 
 </RelativeLayout>
