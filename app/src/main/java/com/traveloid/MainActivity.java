@@ -151,4 +151,8 @@ public class MainActivity extends AppCompatActivity implements DiscreteScrollVie
         Intent intent = new Intent(MainActivity.this, StartHikeActivity.class);
         startActivity(intent);
     }
+
+    public void onBackPressed() {
+        finish();
+    }
 }
