@@ -23,11 +23,19 @@ public class MapperUtils {
     }
 
     private static List<LatLangSerializable> convertToSerializableLatLang(List<GeoPoint> path) {
-        List<LatLangSerializable> latLngs = new ArrayList<>();
-        for (GeoPoint geoPoint : path) {
-            latLngs.add(new LatLangSerializable(geoPoint.getLatitude(), geoPoint.getLongitude()));
+        List<LatLangSerializable> output = new ArrayList<>();
+        for (GeoPoint point : path) {
+            output.add(new LatLangSerializable(point.getLatitude(), point.getLongitude()));
         }
-        return latLngs;
+        return output;
+    }
+
+    public static List<GeoPoint> convertToGeoPoint(List<LatLangSerializable> path) {
+        List<GeoPoint> output = new ArrayList<>();
+        for (LatLangSerializable point : path) {
+            output.add(new GeoPoint(point.getLatitude(), point.getLongitude()));
+        }
+        return output;
     }
 
     public static List<LatLng> convertToLatLang(List<LatLangSerializable> path) {
