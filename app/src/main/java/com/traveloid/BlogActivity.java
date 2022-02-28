@@ -165,7 +165,7 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         stylePolyline(polyline1);
 
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 5));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 10));
 
         googleMap.setOnPolylineClickListener(this);
     }
