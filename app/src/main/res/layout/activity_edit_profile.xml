@@ -10,7 +10,7 @@
         android:layout_marginBottom="20dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="106dp"
+        android:layout_marginTop="56dp"
         android:fontFamily="cursive"
         android:gravity="center"
         android:text="Edit your Traveloid Profile"
@@ -107,7 +107,7 @@
     <Button
         android:onClick="discardChangesClicked"
         android:id="@+id/discard"
-        android:layout_marginVertical="12dp"
+        android:layout_marginTop="12dp"
         android:layout_marginHorizontal="36dp"
         android:textColor="@color/teal_700"
         android:backgroundTint="@color/white"
@@ -116,4 +116,15 @@
         android:layout_height="wrap_content"
         android:text="Discard and Exit" />
 
+    <Button
+        android:onClick="logoutClicked"
+        android:id="@+id/logout"
+        android:layout_marginVertical="12dp"
+        android:layout_marginHorizontal="36dp"
+        android:textColor="@color/teal_700"
+        android:backgroundTint="@color/white"
+        android:background="@drawable/edittext_bg_small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Logout" />
 </LinearLayout>

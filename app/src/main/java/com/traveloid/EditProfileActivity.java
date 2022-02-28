@@ -229,4 +229,10 @@ public class EditProfileActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void logoutClicked(View view) {
+        SharedPrefUtils.saveUserInSP(null, getApplicationContext());
+        mAuth.signOut();
+        startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+    }
 }
