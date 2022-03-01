@@ -101,10 +101,10 @@ public class ExploreActivity extends AppCompatActivity {
         hikes = new ArrayList<>();
 
         for (Hike hike : filteredData) {
-            if (hike.getPopular()) {
-                popHikes.add(hike);
-            } else if (userFav(hike)) {
+            if (userFav(hike)) {
                 favHikes.add(hike);
+            } else if (hike.getPopular()) {
+                popHikes.add(hike);
             } else {
                 hikes.add(hike);
             }
