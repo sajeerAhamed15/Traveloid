@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void loginClicked(View view) {
         progressBar.setVisibility(View.VISIBLE);
-        String _email = email.getText().toString();
+        String _email = email.getText().toString().replaceAll("\\s","");
         String _password = password.getText().toString();
         mAuth.signInWithEmailAndPassword(_email, _password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {

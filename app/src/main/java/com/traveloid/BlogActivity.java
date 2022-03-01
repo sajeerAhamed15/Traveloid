@@ -72,16 +72,9 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
             path = MapperUtils.convertToLatLang(hike.getPath());
             title.setText(hike.getTitle());
             distance.setText(hike.getDistance());
-            setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
+            setLikeButtonColor(likeButton, UserUtils.userFav(user, hike.getTitle()));
             // set image
             new ImageLoadTask(hike.getImage(), img).execute();
-
-            // set image
-            try {
-                URL url = new URL(hike.getImage());
-                Bitmap bmp = BitmapFactory.decodeStream(url.openConnection().getInputStream());
-                img.setImageBitmap(bmp);
-            } catch (Exception ignored) {}
 
             SupportMapFragment mapFragment =
                     (SupportMapFragment) getSupportFragmentManager()
@@ -92,7 +85,7 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onClick(View view) {
                     if (user != null) {
-                        if (!user.getFavorites().contains(hike.getTitle())) {
+                        if (!UserUtils.userFav(user, hike.getTitle())) {
                             FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
@@ -145,12 +138,8 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         try {
-            boolean success = googleMap.setMapStyle(
-                    MapStyleOptions.loadRawResourceStyle(
-                            this, R.raw.style_json));
-
+            boolean success = googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.style_json));
             if (!success) {
                 Log.e("HikePath", "Style parsing failed.");
             }
@@ -158,15 +147,11 @@ public class BlogActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e("HikePath", "Can't find style. Error: ", e);
         }
 
-
         Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .addAll(path));
-
         stylePolyline(polyline1);
-
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 10));
-
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(path.get(0), 5));
         googleMap.setOnPolylineClickListener(this);
     }
 

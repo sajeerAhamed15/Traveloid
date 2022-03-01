@@ -81,7 +81,9 @@ public class ExploreActivity extends AppCompatActivity {
                         filteredData.add(hike);
                     }
                 }
-                initUI();
+                if (allData.size() > 0) {
+                    initUI();
+                }
             }
         });
 
@@ -101,7 +103,7 @@ public class ExploreActivity extends AppCompatActivity {
         hikes = new ArrayList<>();
 
         for (Hike hike : filteredData) {
-            if (userFav(hike)) {
+            if (UserUtils.userFav(user, hike)) {
                 favHikes.add(hike);
             } else if (hike.getPopular()) {
                 popHikes.add(hike);
@@ -146,10 +148,6 @@ public class ExploreActivity extends AppCompatActivity {
         progressBar2.setVisibility(View.GONE);
     }
 
-    private boolean userFav(Hike hike) {
-        return user.getFavorites().contains(hike.getTitle());
-    }
-
     private void getData() {
         FirebaseApi.getAllHikes().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -164,7 +162,9 @@ public class ExploreActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            initUI();
+                            if (allData.size() > 0) {
+                                initUI();
+                            }
                         }
                     });
                 } else {
@@ -190,7 +190,7 @@ public class ExploreActivity extends AppCompatActivity {
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
-        setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
+        setLikeButtonColor(likeButton, UserUtils.userFav(user, hike));
 
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
@@ -211,7 +211,7 @@ public class ExploreActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (user != null) {
-                    if (!user.getFavorites().contains(hike.getTitle())) {
+                    if (!UserUtils.userFav(user, hike)) {
                         FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
@@ -261,7 +261,7 @@ public class ExploreActivity extends AppCompatActivity {
 
         title.setText(hike.getTitle());
         distance.setText(hike.getDistance());
-        setLikeButtonColor(likeButton, user.getFavorites().contains(hike.getTitle()));
+        setLikeButtonColor(likeButton, UserUtils.userFav(user, hike));
 
         // set image
         new ImageLoadTask(hike.getImage(), img).execute();
@@ -282,7 +282,7 @@ public class ExploreActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (user != null) {
-                    if (!user.getFavorites().contains(hike.getTitle())) {
+                    if (!UserUtils.userFav(user, hike)) {
                         FirebaseApi.saveUserLike(hike.getTitle(), user).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {

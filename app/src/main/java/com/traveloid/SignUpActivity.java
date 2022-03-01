@@ -74,7 +74,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     public void createAccountClicked(View view) {
         progressBar.setVisibility(View.VISIBLE);
-        String _email = email.getText().toString();
+        String _email = email.getText().toString().replaceAll("\\s","");
         String _password = password.getText().toString();
         mAuth.createUserWithEmailAndPassword(_email, _password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -91,6 +91,12 @@ public class SignUpActivity extends AppCompatActivity {
                             Toast.makeText(SignUpActivity.this, "Creating user failed.", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.INVISIBLE);
                         }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(SignUpActivity.this, "Creating user failed.", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.INVISIBLE);
                     }
                 });
     }

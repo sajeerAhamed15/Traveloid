@@ -1,5 +1,6 @@
 package com.traveloid.utils;
 
+import com.traveloid.model.Hike;
 import com.traveloid.model.User;
 
 import java.util.ArrayList;
@@ -34,5 +35,15 @@ public class UserUtils {
         favHikes.remove(hikeTitle);
         user.setFavorites(favHikes);
         return user;
+    }
+
+    public static boolean userFav(User user, Hike hike) {
+        if (user.getFavorites() == null || user.getFavorites().size() == 0) return false;
+        return user.getFavorites().contains(hike.getTitle());
+    }
+
+    public static boolean userFav(User user, String hike) {
+        if (user.getFavorites() == null || user.getFavorites().size() == 0) return false;
+        return user.getFavorites().contains(hike);
     }
 }

@@ -174,6 +174,11 @@ public class StartHikeActivity extends AppCompatActivity implements OnMapReadyCa
         addMarker.setEnabled(true);
         finish.setEnabled(true);
         restart.setEnabled(true);
+
+        begin.setTextColor(getResources().getColor(R.color.shopSecondary));
+        addMarker.setTextColor(getResources().getColor(R.color.teal_700));
+        finish.setTextColor(getResources().getColor(R.color.teal_700));
+        restart.setTextColor(getResources().getColor(R.color.teal_700));
     }
 
     private void resetPage() {
@@ -182,6 +187,12 @@ public class StartHikeActivity extends AppCompatActivity implements OnMapReadyCa
         addMarker.setEnabled(false);
         finish.setEnabled(false);
         restart.setEnabled(false);
+
+        begin.setTextColor(getResources().getColor(R.color.teal_700));
+        addMarker.setTextColor(getResources().getColor(R.color.shopSecondary));
+        finish.setTextColor(getResources().getColor(R.color.shopSecondary));
+        restart.setTextColor(getResources().getColor(R.color.shopSecondary));
+
         if (mMap != null) {
             mMap.clear();
         }
