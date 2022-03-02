@@ -125,10 +125,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if(currentUser != null){
-//            startActivity(new Intent(this, MainActivity.class));
-//        }
         if (SharedPrefUtils.getUserFromSP(this) != null) {
             startActivity(new Intent(this, MainActivity.class));
         }
